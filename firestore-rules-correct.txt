@@ -1,0 +1,49 @@
+# 🔒 Regras de Segurança do Firestore - CORRIGIDAS
+
+# ⚠️ IMPORTANTE: Estas regras permitem escrita pública na coleção feedbacks
+# Isso é necessário para que clientes possam enviar feedbacks sem autenticação
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Usuários: usuários podem ler/escrever apenas seus próprios dados
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Áreas: usuários podem ler/escrever apenas suas próprias áreas
+    match /areas/{areaId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Feedbacks: PERMITE ESCRITA PÚBLICA (sem autenticação)
+    match /feedbacks/{feedbackId} {
+      allow write: if true; // PERMITE ESCRITA PARA QUALQUER PESSOA
+      allow read: if request.auth != null && 
+        exists(/databases/$(database)/documents/areas/$(resource.data.areaId)) &&
+        get(/databases/$(database)/documents/areas/$(resource.data.areaId)).data.userId == request.auth.uid;
+    }
+  }
+}
+
+# 📋 Como aplicar:
+# 1. Acesse https://console.firebase.google.com/
+# 2. Selecione seu projeto "pesquisou-ee03b"
+# 3. Vá em "Firestore Database" no menu lateral
+# 4. Clique na aba "Regras"
+# 5. Substitua todo o conteúdo pelas regras acima
+# 6. Clique em "Publicar"
+# 7. Aguarde alguns segundos para as regras serem aplicadas
+
+# ✅ Estas regras resolvem:
+# - Permite que clientes enviem feedbacks sem login
+# - Mantém segurança para leitura de feedbacks (apenas dono da área)
+# - Permite criação de usuários e áreas
+# - Resolve o erro "Missing or insufficient permissions"
+
+# 🧪 Para testar:
+# 1. Aplique as regras acima
+# 2. Acesse http://localhost:3000/test
+# 3. Clique em "Testar Firestore"
+# 4. Verifique se o documento é criado com sucesso 

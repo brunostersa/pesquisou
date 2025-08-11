@@ -1,0 +1,48 @@
+# 🔒 Regras de Segurança do Firestore - COMPLETAS
+
+# ✅ Estas regras incluem todas as coleções necessárias
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Usuários: usuários podem ler/escrever apenas seus próprios dados
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Áreas: usuários podem ler/escrever apenas suas próprias áreas
+    match /areas/{areaId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Feedbacks: qualquer pessoa pode escrever, usuários podem ler feedbacks de suas áreas
+    match /feedbacks/{feedbackId} {
+      allow write: if true;
+      allow read: if request.auth != null && 
+        exists(/databases/$(database)/documents/areas/$(resource.data.areaId)) &&
+        get(/databases/$(database)/documents/areas/$(resource.data.areaId)).data.userId == request.auth.uid;
+    }
+  }
+}
+
+# 📋 Como aplicar:
+# 1. Acesse https://console.firebase.google.com/
+# 2. Selecione seu projeto "pesquisou-ee03b"
+# 3. Vá em "Firestore Database" no menu lateral
+# 4. Clique na aba "Regras"
+# 5. Substitua todo o conteúdo pelas regras acima
+# 6. Clique em "Publicar"
+# 7. Aguarde alguns segundos para as regras serem aplicadas
+
+# ✅ Estas regras resolvem:
+# - Permite criação de usuários (coleção users)
+# - Permite criação de áreas (coleção areas)
+# - Permite escrita pública em feedbacks (coleção feedbacks)
+# - Mantém segurança para leitura de feedbacks
+
+# 🧪 Para testar:
+# 1. Aplique as regras acima
+# 2. Acesse http://localhost:3000/test
+# 3. Teste escrita e leitura
+# 4. Teste o sistema completo 

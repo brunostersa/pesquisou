@@ -1,0 +1,39 @@
+# 🔒 Regras de Segurança do Firestore - PERMISSIVAS (TEMPORÁRIAS)
+
+# ⚠️ ATENÇÃO: Estas regras permitem acesso total para resolver o problema
+# Use apenas para teste e depois volte para as regras seguras
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // PERMITE ACESSO TOTAL PARA TODOS OS DOCUMENTOS
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
+
+# 📋 Como aplicar:
+# 1. Acesse https://console.firebase.google.com/
+# 2. Selecione seu projeto "pesquisou-ee03b"
+# 3. Vá em "Firestore Database" no menu lateral
+# 4. Clique na aba "Regras"
+# 5. Substitua todo o conteúdo pelas regras acima
+# 6. Clique em "Publicar"
+# 7. Aguarde alguns segundos para as regras serem aplicadas
+
+# ✅ Estas regras resolvem:
+# - Permite escrita e leitura em todas as coleções
+# - Resolve imediatamente o erro de permissão
+# - Permite testar o sistema completamente
+
+# ⚠️ IMPORTANTE:
+# Estas regras são temporárias e não seguras para produção
+# Depois que o sistema estiver funcionando, volte para as regras seguras
+
+# 🧪 Para testar:
+# 1. Aplique as regras acima
+# 2. Acesse http://localhost:3000/test
+# 3. Teste escrita e leitura
+# 4. Teste o sistema completo
+# 5. Depois volte para as regras seguras 
