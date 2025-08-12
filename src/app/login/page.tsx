@@ -29,6 +29,53 @@ export default function LoginPage() {
 
   const router = useRouter();
 
+  // Função para limpar erro quando o usuário digita
+  const clearError = () => {
+    if (error) setError('');
+  };
+
+  // Função para traduzir códigos de erro do Firebase para português
+  const getErrorMessage = (errorCode: string): string => {
+    switch (errorCode) {
+      // Erros de autenticação
+      case 'auth/invalid-credential':
+        return 'Email ou senha incorretos. Verifique suas credenciais e tente novamente.';
+      case 'auth/user-not-found':
+        return 'Usuário não encontrado. Verifique se o email está correto ou crie uma nova conta.';
+      case 'auth/wrong-password':
+        return 'Senha incorreta. Verifique se digitou corretamente.';
+      case 'auth/invalid-email':
+        return 'Email inválido. Verifique o formato do email.';
+      case 'auth/weak-password':
+        return 'Senha muito fraca. Use pelo menos 6 caracteres.';
+      case 'auth/email-already-in-use':
+        return 'Este email já está sendo usado. Tente fazer login ou use outro email.';
+      case 'auth/too-many-requests':
+        return 'Muitas tentativas de login. Aguarde alguns minutos e tente novamente.';
+      case 'auth/user-disabled':
+        return 'Conta desabilitada. Entre em contato com o suporte.';
+      case 'auth/operation-not-allowed':
+        return 'Operação não permitida. Entre em contato com o suporte.';
+      case 'auth/network-request-failed':
+        return 'Erro de conexão. Verifique sua internet e tente novamente.';
+      
+      // Erros do Google Sign-In
+      case 'auth/popup-closed-by-user':
+        return 'Login com Google cancelado. Tente novamente.';
+      case 'auth/popup-blocked':
+        return 'Popup bloqueado pelo navegador. Permita popups para este site.';
+      case 'auth/cancelled-popup-request':
+        return 'Solicitação de login cancelada. Tente novamente.';
+      
+      // Erros gerais
+      default:
+        if (errorCode.includes('auth/')) {
+          return 'Erro de autenticação. Tente novamente ou entre em contato com o suporte.';
+        }
+        return 'Ocorreu um erro inesperado. Tente novamente.';
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -67,7 +114,15 @@ export default function LoginPage() {
 
       router.push('/dashboard');
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Erro ao fazer login com Google';
+      let errorMessage = 'Erro ao fazer login com Google';
+      
+      if (error instanceof Error) {
+        // Extrair o código de erro do Firebase
+        const errorCode = (error as any).code || error.message;
+        errorMessage = getErrorMessage(errorCode);
+        console.error('Erro de Google Sign-In:', errorCode, error);
+      }
+      
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -109,7 +164,15 @@ export default function LoginPage() {
       }
       router.push('/dashboard');
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      let errorMessage = 'Erro desconhecido';
+      
+      if (error instanceof Error) {
+        // Extrair o código de erro do Firebase
+        const errorCode = (error as any).code || error.message;
+        errorMessage = getErrorMessage(errorCode);
+        console.error('Erro de login:', errorCode, error);
+      }
+      
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -129,7 +192,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 relative">
       {/* Theme Switcher no canto superior direito */}
       <div className="absolute top-4 right-4">
         <ThemeSwitcher />
@@ -137,15 +200,15 @@ export default function LoginPage() {
       
       <div className="max-w-md w-full space-y-8">
         <div>
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
-            <svg className="h-8 w-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100">
+            <svg className="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             {isSignUp ? 'Criar conta' : 'Entrar na sua conta'}
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-center text-sm text-gray-600">
             {isSignUp ? 'Comece a coletar feedbacks hoje mesmo' : 'Acesse seu painel de controle'}
           </p>
         </div>
@@ -173,7 +236,7 @@ export default function LoginPage() {
             <div className="w-full border-t border-gray-300" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-gray-50 dark:bg-gray-900 text-gray-500">ou</span>
+            <span className="px-2 bg-gray-50 text-gray-500">ou</span>
           </div>
         </div>
 
@@ -194,6 +257,7 @@ export default function LoginPage() {
                   placeholder="Seu nome completo"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  onFocus={clearError}
                 />
               </div>
 
@@ -210,6 +274,7 @@ export default function LoginPage() {
                   placeholder="Nome da sua empresa"
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
+                  onFocus={clearError}
                 />
               </div>
 
@@ -223,6 +288,7 @@ export default function LoginPage() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900"
                   value={segment}
                   onChange={(e) => setSegment(e.target.value)}
+                  onFocus={clearError}
                 >
                   <option value="">Selecione um segmento</option>
                   <option value="varejo">Varejo</option>
@@ -247,6 +313,7 @@ export default function LoginPage() {
                   placeholder="(11) 99999-9999"
                   value={phone}
                   onChange={(e) => setPhone(applyPhoneMask(e.target.value))}
+                  onFocus={clearError}
                 />
               </div>
             </>
@@ -266,6 +333,7 @@ export default function LoginPage() {
               placeholder="seu@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onFocus={clearError}
             />
           </div>
           
@@ -283,19 +351,57 @@ export default function LoginPage() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onFocus={clearError}
             />
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 relative">
+              <button
+                onClick={() => setError('')}
+                className="absolute top-2 right-2 text-red-400 hover:text-red-600 transition-colors"
+                aria-label="Fechar mensagem de erro"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
               <div className="flex">
                 <div className="flex-shrink-0">
                   <svg className="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                   </svg>
                 </div>
-                <div className="ml-3">
-                  <p className="text-sm text-red-700">{error}</p>
+                <div className="ml-3 pr-6">
+                  <p className="text-sm text-red-700 font-medium mb-1">Erro de autenticação</p>
+                  <p className="text-sm text-red-600">{error}</p>
+                  
+                  {/* Dicas específicas baseadas no tipo de erro */}
+                  {error.includes('incorretos') && (
+                    <div className="mt-2 text-xs text-red-500">
+                      💡 <strong>Dica:</strong> Verifique se o CAPS LOCK está desativado e se digitou corretamente.
+                    </div>
+                  )}
+                  {error.includes('não encontrado') && (
+                    <div className="mt-2 text-xs text-red-500">
+                      💡 <strong>Sugestão:</strong> Crie uma nova conta ou verifique se o email está correto.
+                    </div>
+                  )}
+                  {error.includes('já está sendo usado') && (
+                    <div className="mt-2 text-xs text-red-500">
+                      💡 <strong>Sugestão:</strong> Faça login com esta conta ou use outro email.
+                    </div>
+                  )}
+                  {error.includes('muito fraca') && (
+                    <div className="mt-2 text-xs text-red-500">
+                      💡 <strong>Dica:</strong> Use pelo menos 6 caracteres, incluindo letras e números.
+                    </div>
+                  )}
+                  {error.includes('muitas tentativas') && (
+                    <div className="mt-2 text-xs text-red-500">
+                      💡 <strong>Dica:</strong> Aguarde alguns minutos antes de tentar novamente.
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -304,7 +410,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full btn-primary py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-color disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
           >
             {loading ? (
               <div className="flex items-center justify-center">
@@ -332,7 +438,7 @@ export default function LoginPage() {
 
         {/* Features */}
         <div className="text-center">
-          <div className="grid grid-cols-1 gap-4 text-sm text-inverse">
+          <div className="grid grid-cols-1 gap-4 text-sm text-gray-600">
             <div className="flex items-center justify-center space-x-2">
               <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
@@ -341,7 +447,7 @@ export default function LoginPage() {
             </div>
             <div className="flex items-center justify-center space-x-2">
               <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
               </svg>
               <span>Feedbacks anônimos</span>
             </div>

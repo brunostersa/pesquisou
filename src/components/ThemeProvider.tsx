@@ -29,59 +29,42 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
     if (typeof document === 'undefined') return;
     
     const html = document.documentElement;
-    const body = document.body;
-    
-    console.log('🔧 Aplicando tema:', newTheme);
     
     if (newTheme === 'dark') {
       html.classList.add('dark');
-      body.classList.add('dark');
-      body.style.backgroundColor = '#111827';
-      body.style.color = '#f9fafb';
     } else {
       html.classList.remove('dark');
-      body.classList.remove('dark');
-      body.style.backgroundColor = '#ffffff';
-      body.style.color = '#111827';
     }
-    
-    console.log('🔧 HTML classes:', html.className);
-    console.log('🔧 Body classes:', body.className);
     
     setThemeState(newTheme);
   };
 
   // Função para definir o tema
   const setTheme = (newTheme: Theme) => {
-    console.log('🔧 setTheme chamado com:', newTheme);
     applyTheme(newTheme);
     localStorage.setItem('theme', newTheme);
   };
 
   useEffect(() => {
-    console.log('🔧 ThemeProvider useEffect executando');
+    console.log('🔧 ThemeProvider: Iniciando...');
     
-    // Forçar tema claro inicialmente
+    // Forçar tema claro sempre
     const html = document.documentElement;
-    const body = document.body;
-    
-    // Remover qualquer classe dark existente
     html.classList.remove('dark');
-    body.classList.remove('dark');
-    
-    // Aplicar tema claro
-    body.style.backgroundColor = '#ffffff';
-    body.style.color = '#111827';
+    console.log('🔧 ThemeProvider: Classe dark removida do HTML');
     
     // Verificar localStorage
     const savedTheme = localStorage.getItem('theme') as Theme;
-    if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
-      console.log('🔧 Tema salvo encontrado:', savedTheme);
-      applyTheme(savedTheme);
-    } else {
-      console.log('🔧 Aplicando tema padrão: light');
-      applyTheme('light');
-    }
+    console.log('🔧 ThemeProvider: Tema salvo no localStorage:', savedTheme);
+    
+    // Sempre aplicar tema claro, independente do localStorage
+    console.log('🔧 ThemeProvider: Forçando tema claro');
+    applyTheme('light');
+    localStorage.setItem('theme', 'light');
+    
+    // Verificar se há classe dark no HTML
+    console.log('🔧 ThemeProvider: Classes do HTML:', html.className);
+    console.log('🔧 ThemeProvider: Classe dark presente:', html.classList.contains('dark'));
     
     setLoading(false);
   }, []);

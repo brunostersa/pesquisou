@@ -15,18 +15,5 @@ body, html, #__next {
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-/* ===== TESTE DE TEMAS ===== */
-/* Forçar tema claro por padrão */
-body {
-  background-color: #ffffff !important;
-  color: #111827 !important;
-}
-
-/* Tema escuro quando classe dark está presente */
-body.dark {
-  background-color: #111827 !important;
-  color: #f9fafb !important;
-}
-
 /* ===== REMOÇÃO DE TODAS AS PERSONALIZAÇÕES ANTERIORES ===== */
 /* O Tailwind CSS fornece todos os estilos necessários */
