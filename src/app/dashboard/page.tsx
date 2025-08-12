@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { useActiveTab } from '@/hooks/useActiveTab';
@@ -58,55 +58,81 @@ export default function MeuPainelPage() {
   } | null>(null);
 
   const router = useRouter();
+  
+  // Refs para armazenar os unsubscribes
+  const areasUnsubscribeRef = useRef<(() => void) | null>(null);
+  const feedbacksUnsubscribeRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     console.log('🔍 Dashboard: Iniciando verificação de autenticação...');
     
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       console.log('🔍 Dashboard: Estado de autenticação mudou:', user ? 'Usuário logado' : 'Usuário não logado');
       
       if (user) {
         console.log('🔍 Dashboard: Usuário autenticado:', user.uid);
         setUser(user);
-        loadAreas(user.uid);
-        loadUserProfile(user.uid);
-        // Mostrar tutorial para novos usuários
-        if (typeof window !== 'undefined') {
-          const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
-          if (!hasSeenTutorial) {
-            setShowTutorial(true);
+        
+        try {
+          // Carregar dados de forma assíncrona
+          await Promise.all([
+            loadUserProfile(user.uid),
+            Promise.resolve(loadAreas(user.uid)) // loadAreas não é async, mas queremos aguardar
+          ]);
+          
+          // Carregar feedbacks após áreas serem carregadas
+          setTimeout(() => {
+            loadAllFeedbacks(user.uid);
+          }, 500);
+          
+          // Mostrar tutorial para novos usuários
+          if (typeof window !== 'undefined') {
+            const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
+            if (!hasSeenTutorial) {
+              setShowTutorial(true);
+            }
           }
+        } catch (error) {
+          console.error('🔍 Dashboard: Erro ao carregar dados:', error);
+        } finally {
+          // Sempre finalizar o loading, mesmo em caso de erro
+          console.log('🔍 Dashboard: Finalizando loading...');
+          setLoading(false);
         }
       } else {
         console.log('🔍 Dashboard: Redirecionando para login...');
         router.push('/login');
       }
-      
-      // Timeout de segurança para o loading
-      setTimeout(() => {
-        console.log('🔍 Dashboard: Finalizando loading...');
-        setLoading(false);
-      }, 1000);
     });
 
-    return () => unsubscribe();
+    return () => {
+      console.log('🔍 Dashboard: Removendo listener de autenticação');
+      unsubscribe();
+      
+      // Limpar listeners do Firestore
+      if (areasUnsubscribeRef.current) {
+        areasUnsubscribeRef.current();
+      }
+      if (feedbacksUnsubscribeRef.current) {
+        feedbacksUnsubscribeRef.current();
+      }
+    };
   }, [router]);
 
-  // Carregar feedbacks quando usuário for definido
-  useEffect(() => {
-    console.log('🔍 Dashboard: useEffect feedbacks - user?.uid:', user?.uid);
-    if (user?.uid) {
-      loadAllFeedbacks(user.uid);
-    }
-  }, [user?.uid]);
+  // Remover useEffects problemáticos que causam loops
+  // useEffect(() => {
+  //   console.log('🔍 Dashboard: useEffect feedbacks - user?.uid:', user?.uid);
+  //   if (user?.uid) {
+  //     loadAllFeedbacks(user.uid);
+  //   }
+  // }, [user?.uid]);
 
-  // Recarregar feedbacks quando áreas mudarem (apenas se não tivermos feedbacks ainda)
-  useEffect(() => {
-    console.log('🔍 Dashboard: useEffect áreas - user?.uid:', user?.uid, 'areas.length:', areas.length, 'feedbacks.length:', feedbacks.length);
-    if (user?.uid && areas.length > 0 && feedbacks.length === 0) {
-      loadAllFeedbacks(user.uid);
-    }
-  }, [areas, user?.uid, feedbacks.length]);
+  // useEffect(() => {
+  //   console.log('🔍 Dashboard: useEffect áreas - user?.uid:', user?.uid, 'areas.length:', areas.length, 'feedbacks.length:', feedbacks.length);
+  //   if (user?.uid && areas.length > 0 && feedbacks.length === 0) {
+  //     loadAllFeedbacks(user.uid);
+  //   }
+  // }, [areas, user?.uid, feedbacks.length]);
 
   const loadAreas = (userId: string) => {
     // Verificar se o userId é válido antes de fazer a consulta
@@ -123,27 +149,37 @@ export default function MeuPainelPage() {
 
     console.log('Carregando áreas para usuário:', userId);
     
-    const q = query(collection(db, 'areas'), where('userId', '==', userId));
-    
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const areasData: Area[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        if (data) {
-          areasData.push({
-            id: doc.id,
-            ...data,
-            createdAt: data.createdAt?.toDate() || new Date(),
-          } as Area);
-        }
+    try {
+      const q = query(collection(db, 'areas'), where('userId', '==', userId));
+      
+      // Limpar unsubscribe anterior se existir
+      if (areasUnsubscribeRef.current) {
+        areasUnsubscribeRef.current();
+      }
+      
+      areasUnsubscribeRef.current = onSnapshot(q, (querySnapshot) => {
+        const areasData: Area[] = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data) {
+            areasData.push({
+              id: doc.id,
+              ...data,
+              createdAt: data.createdAt?.toDate() || new Date(),
+            } as Area);
+          }
+        });
+        console.log('Áreas carregadas:', areasData.length);
+        setAreas(areasData);
+      }, (error) => {
+        console.error('Erro ao carregar áreas:', error);
+        // Em caso de erro, definir áreas vazias para não travar
+        setAreas([]);
       });
-      console.log('Áreas carregadas:', areasData.length);
-      setAreas(areasData);
-    }, (error) => {
-      console.error('Erro ao carregar áreas:', error);
-    });
-
-    return unsubscribe;
+    } catch (error) {
+      console.error('Erro ao configurar listener de áreas:', error);
+      setAreas([]);
+    }
   };
 
   const loadAllFeedbacks = (userId?: string) => {
@@ -159,42 +195,57 @@ export default function MeuPainelPage() {
 
     console.log('Carregando feedbacks para usuário:', currentUserId);
     
-    const q = query(collection(db, 'feedbacks'));
-    
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const feedbacksData: Feedback[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        
-        // Verificar se os dados são válidos antes de processar
-        if (data && data.areaId) {
-          const feedback = {
-            id: doc.id,
-            ...data,
-            createdAt: data.createdAt?.toDate() || new Date(),
-          } as Feedback;
+    try {
+      const q = query(collection(db, 'feedbacks'));
+      
+      // Limpar unsubscribe anterior se existir
+      if (feedbacksUnsubscribeRef.current) {
+        feedbacksUnsubscribeRef.current();
+      }
+      
+      feedbacksUnsubscribeRef.current = onSnapshot(q, (querySnapshot) => {
+        const feedbacksData: Feedback[] = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
           
-          // Adicionar todos os feedbacks - a filtragem será feita depois
-          feedbacksData.push(feedback);
-        }
+          // Verificar se os dados são válidos antes de processar
+          if (data && data.areaId) {
+            const feedback = {
+              id: doc.id,
+              ...data,
+              createdAt: data.createdAt?.toDate() || new Date(),
+            } as Feedback;
+            
+            // Adicionar todos os feedbacks - a filtragem será feita depois
+            feedbacksData.push(feedback);
+          }
+        });
+        console.log('Feedbacks carregados:', feedbacksData.length);
+        setFeedbacks(feedbacksData);
+      }, (error) => {
+        console.error('Erro ao carregar feedbacks:', error);
+        // Em caso de erro, definir feedbacks vazios para não travar
+        setFeedbacks([]);
       });
-      console.log('Feedbacks carregados:', feedbacksData.length);
-      setFeedbacks(feedbacksData);
-    }, (error) => {
-      console.error('Erro ao carregar feedbacks:', error);
-    });
-
-    return unsubscribe;
+    } catch (error) {
+      console.error('Erro ao configurar listener de feedbacks:', error);
+      setFeedbacks([]);
+    }
   };
 
   const loadUserProfile = async (userId: string) => {
     try {
+      console.log('🔍 Dashboard: Carregando perfil do usuário:', userId);
+      
       const userRef = doc(db, 'users', userId);
       const userDoc = await getDoc(userRef);
       
       if (userDoc.exists()) {
+        console.log('🔍 Dashboard: Perfil encontrado:', userDoc.data());
         setUserProfile(userDoc.data());
       } else {
+        console.log('🔍 Dashboard: Perfil não encontrado, criando perfil básico...');
+        
         // Se o documento não existe, criar um perfil básico
         const basicProfile = {
           name: user?.displayName || 'Usuário',
@@ -206,20 +257,33 @@ export default function MeuPainelPage() {
           updatedAt: new Date()
         };
         
-        // Criar o documento no Firestore
-        await setDoc(userRef, basicProfile);
-        setUserProfile(basicProfile);
+        console.log('🔍 Dashboard: Criando perfil básico:', basicProfile);
+        
+        try {
+          // Criar o documento no Firestore
+          await setDoc(userRef, basicProfile);
+          console.log('🔍 Dashboard: Perfil básico criado com sucesso!');
+          setUserProfile(basicProfile);
+        } catch (setDocError) {
+          console.error('🔍 Dashboard: Erro ao criar perfil no Firestore:', setDocError);
+          // Se falhar ao criar no Firestore, usar dados locais
+          setUserProfile(basicProfile);
+        }
       }
     } catch (error) {
-      console.error('Erro ao carregar perfil:', error);
-      // Em caso de erro, usar dados básicos
-      setUserProfile({
+      console.error('🔍 Dashboard: Erro ao carregar perfil:', error);
+      
+      // Em caso de erro, usar dados básicos sem tentar salvar no Firestore
+      const fallbackProfile = {
         name: user?.displayName || 'Usuário',
         email: user?.email || '',
         company: 'Não informado',
         segment: 'Não informado',
         phone: 'Não informado'
-      });
+      };
+      
+      console.log('🔍 Dashboard: Usando perfil de fallback:', fallbackProfile);
+      setUserProfile(fallbackProfile);
     }
   };
 
@@ -385,7 +449,7 @@ export default function MeuPainelPage() {
   }
 
   // Loading adicional para quando ainda não temos dados
-  if (!user || areas.length === 0) {
+  if (!user || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
