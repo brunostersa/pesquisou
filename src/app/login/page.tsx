@@ -81,13 +81,14 @@ export default function LoginPage() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
+      if (user && !needsProfileCompletion) {
+        // Só redireciona se não estiver no modo de completar perfil
         router.push('/dashboard');
       }
     });
 
     return () => unsubscribe();
-  }, [router]);
+  }, [router, needsProfileCompletion]);
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
@@ -97,50 +98,46 @@ export default function LoginPage() {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
+      console.log('Google Sign-In bem-sucedido:', user.email);
+      console.log('Display Name:', user.displayName);
+      console.log('Photo URL:', user.photoURL);
+
       // Verificar se o usuário já existe no Firestore
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       
       if (!userDoc.exists()) {
-        // Usuário novo - verificar se tem dados básicos
-        const hasBasicInfo = user.displayName && user.displayName.trim().length > 0;
+        console.log('Usuário novo - não existe no Firestore');
         
-        if (!hasBasicInfo) {
-          // Usuário precisa completar o perfil
-          setGoogleUser(user);
-          setNeedsProfileCompletion(true);
-          setLoading(false);
-          return;
-        }
-        
-        // Usuário tem dados básicos - criar perfil no Firestore
-        await setDoc(doc(db, 'users', user.uid), {
-          name: user.displayName || 'Usuário Google',
-          email: user.email,
-          company: '',
-          segment: '',
-          phone: '',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          authProvider: 'google',
-          photoURL: user.photoURL
-        });
-        
-        router.push('/dashboard');
+        // Para usuários novos via Google, sempre mostrar formulário de completar perfil
+        // Isso garante que tenhamos todos os dados necessários
+        setGoogleUser(user);
+        setNeedsProfileCompletion(true);
+        setLoading(false);
+        console.log('Redirecionando para completar perfil');
+        return;
       } else {
+        console.log('Usuário existente - verificando perfil no Firestore');
+        
         // Usuário existente - verificar se o perfil está completo
         const userData = userDoc.data();
+        console.log('Dados do usuário:', userData);
+        
         const isProfileComplete = userData.company && userData.company.trim().length > 0 && 
                                  userData.segment && userData.segment.trim().length > 0;
+        
+        console.log('Perfil completo?', isProfileComplete);
         
         if (!isProfileComplete) {
           // Perfil incompleto - redirecionar para completar
           setGoogleUser(user);
           setNeedsProfileCompletion(true);
           setLoading(false);
+          console.log('Perfil incompleto - redirecionando para completar');
           return;
         }
         
         // Perfil completo - ir para dashboard
+        console.log('Perfil completo - indo para dashboard');
         router.push('/dashboard');
       }
     } catch (error: unknown) {
