@@ -171,74 +171,7 @@ export default function SubscriptionPage() {
             </CardContent>
           </Card>
 
-          {/* Debug Tools */}
-          <Card className="mb-6">
-            <CardHeader>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">🔧 Ferramentas de Debug</h2>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                  <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
-                    Status da Assinatura: {subscriptionData?.subscriptionStatus === 'active' ? '✅ Ativo' : '❌ Inativo'}
-                  </h3>
-                  <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
-                    Se o status estiver incorreto, use os botões abaixo para corrigir.
-                  </p>
-                  
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={async () => {
-                        if (!user) return;
-                        try {
-                          const response = await fetch('/api/verificar-assinatura-usuario', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ userId: user.uid })
-                          });
-                          const data = await response.json();
-                          if (data.success) {
-                            alert(`Dados do usuário:\n${JSON.stringify(data.userData, null, 2)}\n\nAnálise:\n${JSON.stringify(data.analysis, null, 2)}`);
-                          }
-                        } catch (error) {
-                          console.error('Erro ao verificar dados:', error);
-                          alert('Erro ao verificar dados');
-                        }
-                      }}
-                      className="inline-flex items-center px-3 py-2 border border-blue-300 shadow-sm text-sm leading-4 font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    >
-                      🔍 Verificar Dados do Usuário
-                    </button>
-                    
-                    <button
-                      onClick={async () => {
-                        if (!user) return;
-                        try {
-                          const response = await fetch('/api/corrigir-dados-assinatura', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ userId: user.uid })
-                          });
-                          const data = await response.json();
-                          if (data.success) {
-                            alert(`✅ ${data.message}`);
-                            // Recarregar dados
-                            await loadUserProfile(user.uid);
-                          }
-                        } catch (error) {
-                          console.error('Erro ao corrigir dados:', error);
-                          alert('Erro ao corrigir dados');
-                        }
-                      }}
-                      className="inline-flex items-center px-3 py-2 border border-green-300 shadow-sm text-sm leading-4 font-medium rounded-md text-green-700 bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                    >
-                      🔄 Corrigir Dados da Assinatura
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+
 
           {/* Cancellation Info */}
           <Card>
