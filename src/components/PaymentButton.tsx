@@ -66,7 +66,7 @@ export default function PaymentButton({ plan, price, features, popular = false }
   };
 
   return (
-    <div className={`relative p-6 bg-white rounded-lg shadow-lg border-2 ${popular ? 'border-blue-500' : 'border-gray-200'}`}>
+    <div className={`relative p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg border-2 ${popular ? 'border-blue-500' : 'border-gray-200 dark:border-gray-700'}`}>
       {popular && (
         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
           <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium">
@@ -76,14 +76,14 @@ export default function PaymentButton({ plan, price, features, popular = false }
       )}
 
       <div className="text-center mb-6">
-        <h3 className="text-2xl font-bold text-gray-900 mb-2">
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           {plan === 'starter' ? 'Starter' : 'Professional'}
         </h3>
-        <div className="text-4xl font-bold text-gray-900 mb-2">
+        <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
           {price}
-          <span className="text-lg font-normal text-gray-600">/mês</span>
+          <span className="text-lg font-normal text-gray-600 dark:text-gray-400">/mês</span>
         </div>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400">
           {plan === 'starter' 
             ? 'Ideal para pequenas empresas' 
             : 'Para empresas em crescimento'
@@ -97,7 +97,7 @@ export default function PaymentButton({ plan, price, features, popular = false }
             <svg className="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
-            <span className="text-gray-700">{feature}</span>
+            <span className="text-gray-700 dark:text-gray-300">{feature}</span>
           </li>
         ))}
       </ul>
@@ -109,7 +109,7 @@ export default function PaymentButton({ plan, price, features, popular = false }
           w-full py-3 px-6 rounded-lg font-medium transition-colors
           ${popular 
             ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-            : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
+            : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white transition-colors'
           }
           disabled:opacity-50 disabled:cursor-not-allowed
         `}
@@ -124,7 +124,7 @@ export default function PaymentButton({ plan, price, features, popular = false }
         )}
       </button>
 
-      <p className="text-xs text-gray-500 text-center mt-3">
+      <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-3">
         Cancelamento a qualquer momento • Sem taxa de setup
       </p>
     </div>

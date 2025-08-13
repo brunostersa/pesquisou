@@ -179,13 +179,13 @@ export default function AIAgent({ feedbacks, areas, userSegment, onClose }: AIAg
 
           {/* Seletor de Área */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-blue-600 mb-2">
+            <label className="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-2">
               Selecione uma área para análise:
             </label>
             <select
               value={selectedArea}
               onChange={(e) => setSelectedArea(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
               <option value="">Escolha uma área...</option>
               {areas.map((area) => (
@@ -200,7 +200,7 @@ export default function AIAgent({ feedbacks, areas, userSegment, onClose }: AIAg
           {loading && (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-              <p className="text-gray-600">Analisando dados da área...</p>
+              <p className="text-gray-600 dark:text-gray-400">Analisando dados da área...</p>
             </div>
           )}
 
@@ -211,11 +211,11 @@ export default function AIAgent({ feedbacks, areas, userSegment, onClose }: AIAg
               <Card variant="elevated">
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-semibold text-blue-600">{analysis.areaName}</h3>
+                    <h3 className="text-xl font-semibold text-blue-600 dark:text-blue-400">{analysis.areaName}</h3>
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      analysis.priority === 'high' ? 'bg-red-100 text-red-800' :
-                      analysis.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-green-100 text-green-800'
+                      analysis.priority === 'high' ? 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400' :
+                      analysis.priority === 'medium' ? 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-400' :
+                      'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400'
                     }`}>
                       Prioridade {analysis.priority === 'high' ? 'Alta' : 
                                  analysis.priority === 'medium' ? 'Média' : 'Baixa'}
@@ -225,18 +225,18 @@ export default function AIAgent({ feedbacks, areas, userSegment, onClose }: AIAg
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600">{analysis.totalFeedbacks}</div>
-                      <div className="text-sm text-gray-600">Total de Feedbacks</div>
+                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{analysis.totalFeedbacks}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Total de Feedbacks</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600">
+                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                         {analysis.averageRating.toFixed(1)}
                       </div>
-                      <div className="text-sm text-gray-600">Avaliação Média</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Avaliação Média</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600">{analysis.topIssues.length}</div>
-                      <div className="text-sm text-gray-600">Problemas Identificados</div>
+                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{analysis.topIssues.length}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Problemas Identificados</div>
                     </div>
                   </div>
                 </CardContent>
@@ -245,14 +245,14 @@ export default function AIAgent({ feedbacks, areas, userSegment, onClose }: AIAg
               {/* Problemas Identificados */}
               <Card variant="elevated">
                 <CardHeader>
-                  <h3 className="text-lg font-semibold text-blue-600">🚨 Problemas Identificados</h3>
+                  <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-400">🚨 Problemas Identificados</h3>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {analysis.topIssues.map((issue, index) => (
-                      <div key={index} className="flex items-start space-x-3 p-3 bg-red-50 rounded-lg">
-                        <span className="text-red-500 mt-1">•</span>
-                        <span className="text-gray-900">{issue}</span>
+                      <div key={index} className="flex items-start space-x-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                        <span className="text-red-500 dark:text-red-400 mt-1">•</span>
+                        <span className="text-gray-900 dark:text-white">{issue}</span>
                       </div>
                     ))}
                   </div>
@@ -262,14 +262,14 @@ export default function AIAgent({ feedbacks, areas, userSegment, onClose }: AIAg
               {/* Recomendações */}
               <Card variant="elevated">
                 <CardHeader>
-                  <h3 className="text-lg font-semibold text-blue-600">💡 Recomendações de Melhoria</h3>
+                  <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-400">💡 Recomendações de Melhoria</h3>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {analysis.recommendations.map((recommendation, index) => (
-                      <div key={index} className="flex items-start space-x-3 p-3 bg-green-50 rounded-lg">
-                        <span className="text-green-500 mt-1">•</span>
-                        <span className="text-gray-900">{recommendation}</span>
+                      <div key={index} className="flex items-start space-x-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                        <span className="text-green-500 dark:text-green-400 mt-1">•</span>
+                        <span className="text-gray-900 dark:text-white">{recommendation}</span>
                       </div>
                     ))}
                   </div>
@@ -280,10 +280,10 @@ export default function AIAgent({ feedbacks, areas, userSegment, onClose }: AIAg
               {userSegment && (
                 <Card variant="elevated">
                   <CardHeader>
-                    <h3 className="text-lg font-semibold text-blue-600">🎯 Insights do Segmento: {userSegment}</h3>
+                    <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-400">🎯 Insights do Segmento: {userSegment}</h3>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
                       <p className="mb-2">
                         Esta análise foi personalizada para o seu segmento de atuação, 
                         considerando as melhores práticas e desafios específicos da área.
@@ -307,10 +307,10 @@ export default function AIAgent({ feedbacks, areas, userSegment, onClose }: AIAg
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-blue-600 mb-2">
+              <h3 className="text-lg font-medium text-blue-600 dark:text-blue-400 mb-2">
                 Selecione uma área para análise
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-400">
                 Escolha uma área específica para receber análises inteligentes e recomendações personalizadas.
               </p>
             </div>

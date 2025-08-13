@@ -110,7 +110,7 @@ interface CardFooterProps {
 
 export const CardFooter: React.FC<CardFooterProps> = ({ children, className }) => {
   return (
-    <div className={cn('flex items-center justify-between pt-4 mt-4 border-t border-custom', className)}>
+    <div className={cn('flex items-center justify-between pt-4 mt-4 border-t border-gray-200 dark:border-gray-700', className)}>
       {children}
     </div>
   );
@@ -139,23 +139,23 @@ export const CardMetric: React.FC<CardMetricProps> = ({
 }) => {
   return (
     <div 
-      className={cn('flex items-center', className, onClick && 'cursor-pointer hover:bg-tertiary/50 transition-colors rounded-lg p-2')}
+      className={cn('flex items-center', className, onClick && 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors rounded-lg p-2')}
       onClick={onClick}
     >
       {icon && (
-        <div className="p-2 bg-blue-100 rounded-lg mr-4">
-              <div className="text-blue-600">{icon}</div>
+        <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg mr-4">
+              <div className="text-blue-600 dark:text-blue-400">{icon}</div>
         </div>
       )}
       <div className="flex-1">
-        <p className="text-sm font-medium text-secondary">{title}</p>
+        <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{title}</p>
         <div className="flex items-center space-x-2">
-          <p className="text-2xl font-semibold text-blue-600">{value}</p>
+          <p className="text-2xl font-semibold text-blue-600 dark:text-blue-400">{value}</p>
           {trend && (
             <span
               className={cn(
                 'text-xs font-medium',
-                trend.isPositive ? 'text-success-color' : 'text-error-color'
+                trend.isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
               )}
             >
               {trend.isPositive ? '+' : ''}{trend.value}%
@@ -185,13 +185,13 @@ export const CardAction: React.FC<CardActionProps> = ({
   variant = 'primary',
   size = 'md',
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
+  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800';
   
   const variantClasses = {
     primary: 'bg-blue-600 text-white hover:opacity-90 focus:ring-blue-500',
-    secondary: 'bg-secondary-color text-inverse hover:opacity-90 focus:ring-secondary-color',
-    outline: 'bg-transparent border border-gray-300 text-blue-600 hover:bg-gray-50 focus:ring-blue-500',
-    ghost: 'bg-transparent text-blue-600 hover:bg-gray-50 focus:ring-blue-500',
+    secondary: 'bg-purple-600 text-white hover:opacity-90 focus:ring-purple-500',
+    outline: 'bg-transparent border border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-blue-500',
+    ghost: 'bg-transparent text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-blue-500',
   };
 
   const sizeClasses = {

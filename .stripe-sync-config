@@ -1,0 +1,19 @@
+# Configuração da Sincronização Stripe ↔ Firestore
+# Gerado automaticamente em Wed Aug 13 12:34:56 -03 2025
+
+PROJECT_DIR=/Users/brunostersa/Documents/Projetos/Pesquisou
+SCRIPT_PATH=/Users/brunostersa/Documents/Projetos/Pesquisou/scripts/sync-stripe-firestore.js
+LOG_DIR=/Users/brunostersa/Documents/Projetos/Pesquisou/logs
+CRON_SCHEDULE=0 */6 * * *
+
+# Para testar manualmente:
+# cd /Users/brunostersa/Documents/Projetos/Pesquisou && node /Users/brunostersa/Documents/Projetos/Pesquisou/scripts/sync-stripe-firestore.js
+
+# Para ver logs:
+# tail -f /Users/brunostersa/Documents/Projetos/Pesquisou/logs/sync-$(date +%Y%m%d).log
+
+# Para remover o cron job:
+# crontab -l | grep -v "sync-stripe-firestore" | crontab -
+
+# Para ver cron jobs ativos:
+# crontab -l

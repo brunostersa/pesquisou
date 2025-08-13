@@ -428,31 +428,6 @@ export default function ProfilePage() {
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                         Sua preferência será salva automaticamente no seu perfil
                       </p>
-                      
-                        {/* Botão temporário para limpar cache */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            // Limpar localStorage
-                            localStorage.removeItem('theme');
-                            localStorage.removeItem('adminMode');
-                            
-                            // Forçar tema claro no HTML
-                            const html = document.documentElement;
-                            const body = document.body;
-                            
-                            html.classList.remove('dark');
-                            body.classList.remove('dark');
-                            body.style.backgroundColor = '#ffffff';
-                            body.style.color = '#111827';
-                            
-                            // Recarregar página
-                            window.location.reload();
-                          }}
-                          className="mt-2 px-3 py-1 text-xs bg-red-100 text-red-700 rounded border border-red-200 hover:bg-red-200 transition-colors"
-                        >
-                          🔄 Forçar Tema Claro e Recarregar
-                        </button>
                     </div>
 
                     {/* Toggle de Modo Admin */}
