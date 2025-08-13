@@ -8,8 +8,15 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
-      // Removidas todas as personalizações de cores
-      // Usando apenas as cores padrão do Tailwind
+      // Personalizações para text-base
+      fontSize: {
+        'base': ['1rem', {
+          lineHeight: '1.5rem',
+          letterSpacing: '0.025em',
+          fontWeight: '400'
+        }],
+      },
+      // Outras personalizações podem ser adicionadas aqui
     },
   },
 }

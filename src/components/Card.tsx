@@ -1,9 +1,5 @@
 import React from 'react';
-
-// Função utilitária para combinar classes CSS
-function cn(...classes: (string | undefined | null | false)[]): string {
-  return classes.filter(Boolean).join(' ');
-}
+import { cn } from '@/lib/utils';
 
 interface CardProps {
   children: React.ReactNode;
@@ -27,10 +23,10 @@ const Card: React.FC<CardProps> = ({
   const baseClasses = 'rounded-lg transition-all duration-200';
   
   const variantClasses = {
-    default: 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm',
-    elevated: 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg',
-    outlined: 'bg-transparent border-2 border-gray-300 dark:border-gray-600 shadow-none',
-    gradient: 'bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 border border-gray-200 dark:border-gray-600 shadow-sm',
+    default: 'bg-theme-card border border-theme-primary shadow-theme-sm',
+    elevated: 'bg-theme-card border border-theme-primary shadow-theme-lg',
+    outlined: 'bg-transparent border-2 border-theme-secondary shadow-none',
+    gradient: 'bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 border border-theme-primary shadow-theme-sm',
   };
 
   const sizeClasses = {
@@ -46,7 +42,7 @@ const Card: React.FC<CardProps> = ({
     lg: 'p-8',
   };
 
-  const hoverClasses = hover ? 'hover:shadow-md cursor-pointer' : '';
+  const hoverClasses = hover ? 'hover:shadow-theme-md cursor-pointer' : '';
   const clickableClasses = onClick ? 'cursor-pointer' : '';
 
   return (
@@ -71,23 +67,12 @@ const Card: React.FC<CardProps> = ({
 interface CardHeaderProps {
   children: React.ReactNode;
   className?: string;
-  icon?: React.ReactNode;
-  action?: React.ReactNode;
 }
 
-export const CardHeader: React.FC<CardHeaderProps> = ({
-  children,
-  className,
-  icon,
-  action,
-}) => {
+export const CardHeader: React.FC<CardHeaderProps> = ({ children, className }) => {
   return (
-    <div className={cn('flex items-center justify-between mb-4', className)}>
-      <div className="flex items-center space-x-3">
-        {icon && <div className="flex-shrink-0">{icon}</div>}
-        <div>{children}</div>
-      </div>
-      {action && <div className="flex-shrink-0">{action}</div>}
+    <div className={cn('pb-4 border-b border-theme-primary', className)}>
+      {children}
     </div>
   );
 };
@@ -99,10 +84,14 @@ interface CardContentProps {
 }
 
 export const CardContent: React.FC<CardContentProps> = ({ children, className }) => {
-  return <div className={cn('', className)}>{children}</div>;
+  return (
+    <div className={cn('py-4', className)}>
+      {children}
+    </div>
+  );
 };
 
-// Componente CardFooter para rodapés de card
+// Componente CardFooter para rodapés do card
 interface CardFooterProps {
   children: React.ReactNode;
   className?: string;
@@ -110,59 +99,78 @@ interface CardFooterProps {
 
 export const CardFooter: React.FC<CardFooterProps> = ({ children, className }) => {
   return (
-    <div className={cn('flex items-center justify-between pt-4 mt-4 border-t border-gray-200 dark:border-gray-700', className)}>
+    <div className={cn('pt-4 border-t border-theme-primary', className)}>
       {children}
     </div>
   );
 };
 
-// Componente CardMetric para métricas
-interface CardMetricProps {
-  title: string;
-  value: string | number;
-  icon?: React.ReactNode;
-  trend?: {
-    value: number;
-    isPositive: boolean;
-  };
+// Componente CardTitle para títulos do card
+interface CardTitleProps {
+  children: React.ReactNode;
   className?: string;
-  onClick?: () => void;
+  as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 }
 
-export const CardMetric: React.FC<CardMetricProps> = ({
-  title,
-  value,
-  icon,
-  trend,
-  className,
-  onClick,
+export const CardTitle: React.FC<CardTitleProps> = ({ 
+  children, 
+  className, 
+  as: Component = 'h3' 
 }) => {
   return (
-    <div 
-      className={cn('flex items-center', className, onClick && 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors rounded-lg p-2')}
-      onClick={onClick}
-    >
-      {icon && (
-        <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg mr-4">
-              <div className="text-blue-600 dark:text-blue-400">{icon}</div>
-        </div>
-      )}
-      <div className="flex-1">
-        <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{title}</p>
-        <div className="flex items-center space-x-2">
-          <p className="text-2xl font-semibold text-blue-600 dark:text-blue-400">{value}</p>
-          {trend && (
-            <span
-              className={cn(
-                'text-xs font-medium',
-                trend.isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-              )}
-            >
-              {trend.isPositive ? '+' : ''}{trend.value}%
-            </span>
-          )}
-        </div>
+    <Component className={cn('text-lg font-semibold text-theme-primary mb-2', className)}>
+      {children}
+    </Component>
+  );
+};
+
+// Componente CardDescription para descrições do card
+interface CardDescriptionProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export const CardDescription: React.FC<CardDescriptionProps> = ({ children, className }) => {
+  return (
+    <p className={cn('text-theme-secondary text-sm', className)}>
+      {children}
+    </p>
+  );
+};
+
+// Componente CardMetric para métricas/estatísticas
+interface CardMetricProps {
+  value: string | number;
+  label: string;
+  trend?: 'up' | 'down' | 'neutral';
+  className?: string;
+}
+
+export const CardMetric: React.FC<CardMetricProps> = ({ 
+  value, 
+  label, 
+  trend = 'neutral',
+  className 
+}) => {
+  const trendColors = {
+    up: 'text-green-600 dark:text-green-400',
+    down: 'text-red-600 dark:text-red-400',
+    neutral: 'text-theme-secondary'
+  };
+
+  const trendIcons = {
+    up: '↗',
+    down: '↘',
+    neutral: '→'
+  };
+
+  return (
+    <div className={cn('text-center', className)}>
+      <div className={cn('text-2xl font-bold text-theme-primary mb-1', trendColors[trend])}>
+        {value}
+        <span className="ml-2 text-lg">{trendIcons[trend]}</span>
       </div>
+      <p className="text-sm text-theme-secondary">{label}</p>
     </div>
   );
 };
@@ -185,12 +193,12 @@ export const CardAction: React.FC<CardActionProps> = ({
   variant = 'primary',
   size = 'md',
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800';
+  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-focus';
   
   const variantClasses = {
-    primary: 'bg-blue-600 text-white hover:opacity-90 focus:ring-blue-500',
-    secondary: 'bg-purple-600 text-white hover:opacity-90 focus:ring-purple-500',
-    outline: 'bg-transparent border border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-blue-500',
+    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
+    secondary: 'bg-purple-600 text-white hover:bg-purple-700 focus:ring-purple-500',
+    outline: 'bg-transparent border border-theme-secondary text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-blue-500',
     ghost: 'bg-transparent text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-blue-500',
   };
 

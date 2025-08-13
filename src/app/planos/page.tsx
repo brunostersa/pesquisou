@@ -144,15 +144,17 @@ export default function PricingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-theme-primary">
       <Sidebar
         activeTab={activeTab}
         onTabChange={(tab) => {
           if (tab === 'overview') router.push('/dashboard');
           else if (tab === 'areas') router.push('/areas');
           else if (tab === 'feedbacks') router.push('/feedbacks');
-          else if (tab === 'ai-agent') router.push('/agente-ia');
-          else if (tab === 'knowledge') router.push('/base-conhecimento');
+          else if (tab === 'agente-ia') router.push('/agente-ia');
+          else if (tab === 'base-conhecimento') router.push('/base-conhecimento');
+          else if (tab === 'pricing') router.push('/planos');
+          else if (tab === 'assinatura') router.push('/assinatura');
         }}
         user={user}
         userProfile={userProfile}

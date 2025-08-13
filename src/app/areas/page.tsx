@@ -135,7 +135,7 @@ export default function AreasPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-theme-primary">
       <Sidebar
         activeTab={activeTab}
         onTabChange={(tab) => {
@@ -143,6 +143,8 @@ export default function AreasPage() {
           else if (tab === 'feedbacks') router.push('/feedbacks');
           else if (tab === 'agente-ia') router.push('/agente-ia');
           else if (tab === 'base-conhecimento') router.push('/base-conhecimento');
+          else if (tab === 'pricing') router.push('/planos');
+          else if (tab === 'assinatura') router.push('/assinatura');
         }}
         user={user}
         userProfile={userProfile}

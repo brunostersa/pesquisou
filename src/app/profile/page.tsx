@@ -172,6 +172,25 @@ export default function ProfilePage() {
     setTimeout(() => setNotification(null), 5000);
   };
 
+  const handleThemeChange = async (newTheme: 'light' | 'dark') => {
+    setTheme(newTheme);
+    
+    // Salvar no Firestore
+    if (user) {
+      try {
+        await updateDoc(doc(db, 'users', user.uid), {
+          theme: newTheme,
+          updatedAt: new Date()
+        });
+        
+        showNotification(`Tema ${newTheme === 'light' ? 'claro' : 'escuro'} salvo com sucesso!`, 'success');
+      } catch (error) {
+        console.error('Erro ao salvar tema:', error);
+        showNotification('Erro ao salvar preferência de tema', 'error');
+      }
+    }
+  };
+
   const handleToggleAdminMode = () => {
     toggleAdminMode();
     
@@ -192,7 +211,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-theme-primary flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-700 dark:text-gray-300">Carregando perfil...</p>
@@ -202,7 +221,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-theme-primary">
       {/* Sidebar */}
       <Sidebar
         activeTab={activeTab}
@@ -397,7 +416,7 @@ export default function ProfilePage() {
                             type="button"
                             onClick={() => {
                               const newTheme = theme === 'light' ? 'dark' : 'light';
-                              setTheme(newTheme);
+                              handleThemeChange(newTheme);
                             }}
                             className={`
                               relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2

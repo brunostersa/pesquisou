@@ -52,7 +52,7 @@ export default function KnowledgePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-theme-primary flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-600 mx-auto mb-4"></div>
           <p className="text-gray-700 dark:text-gray-300">Carregando...</p>
@@ -62,14 +62,17 @@ export default function KnowledgePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-theme-primary">
       <Sidebar
         activeTab={activeTab}
         onTabChange={(tab) => {
           if (tab === 'overview') router.push('/dashboard');
           else if (tab === 'areas') router.push('/areas');
           else if (tab === 'feedbacks') router.push('/feedbacks');
-          else if (tab === 'ai-agent') router.push('/agente-ia');
+          else if (tab === 'agente-ia') router.push('/agente-ia');
+          else if (tab === 'base-conhecimento') router.push('/base-conhecimento');
+          else if (tab === 'pricing') router.push('/planos');
+          else if (tab === 'assinatura') router.push('/assinatura');
         }}
         user={user}
         userProfile={userProfile}

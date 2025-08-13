@@ -1,13 +1,30 @@
 'use client';
 
 import { useTheme } from './ThemeProvider';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { doc, updateDoc } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 
 export default function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
+  const [user] = useAuthState(auth);
 
-  const toggleTheme = () => {
+  const toggleTheme = async () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
+    
+    // Salvar no Firestore se o usuário estiver logado
+    if (user) {
+      try {
+        await updateDoc(doc(db, 'users', user.uid), {
+          theme: newTheme,
+          updatedAt: new Date()
+        });
+        console.log('🎨 Tema salvo no Firestore:', newTheme);
+      } catch (error) {
+        console.error('Erro ao salvar tema no Firestore:', error);
+      }
+    }
   };
 
   return (
