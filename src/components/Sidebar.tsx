@@ -30,25 +30,38 @@ export default function Sidebar({ activeTab, onTabChange, user, userProfile, onL
   };
 
   const menuItems = [
+    // Menus básicos (modo usuário)
     { id: 'overview', label: 'Visão Geral', icon: '📊', path: '/dashboard' },
     { id: 'areas', label: 'Áreas', icon: '🏢', path: '/areas' },
     { id: 'feedbacks', label: 'Feedbacks', icon: '💬', path: '/feedbacks' },
     { id: 'base-conhecimento', label: 'Base de Conhecimento', icon: '📚', path: '/base-conhecimento' },
     { id: 'agente-ia', label: 'Agente IA', icon: '🤖', path: '/agente-ia' },
-    { id: 'pricing', label: 'Planos', icon: '💰', path: '/planos' },
     { id: 'assinatura', label: 'Assinatura', icon: '💳', path: '/assinatura' },
-    ...(isAdminMode ? [
-      { id: 'escritorio', label: 'Escritório', icon: '🏛️', path: '/escritorio' },
-      { id: 'usuarios-admin', label: 'Usuários Admin', icon: '👥', path: '/usuarios-admin' },
-    ] : []),
+    
+    // Menus administrativos
+    { id: 'escritorio', label: 'Escritório', icon: '🏛️', path: '/escritorio' },
+    { id: 'usuarios-admin', label: 'Usuários Admin', icon: '👥', path: '/usuarios-admin' },
   ];
 
   const filteredMenuItems = menuItems.filter(item => {
-    // Se não for admin mode, mostrar apenas itens básicos
-    if (!isAdminMode && ['escritorio', 'usuarios-admin'].includes(item.id)) {
-      return false;
+    const isAdminItem = ['escritorio', 'usuarios-admin'].includes(item.id);
+    const isBasicItem = !isAdminItem;
+    
+    if (isAdminMode) {
+      // Modo admin: mostrar APENAS menus administrativos
+      return isAdminItem;
+    } else {
+      // Modo usuário: mostrar menus básicos (excluir administrativos)
+      return isBasicItem;
     }
-    return true;
+  });
+
+  // Debug: log do estado do modo admin
+  console.log('Sidebar Debug:', { 
+    isAdminMode, 
+    totalMenuItems: menuItems.length, 
+    filteredMenuItems: filteredMenuItems.length,
+    filteredItems: filteredMenuItems.map(item => item.id)
   });
 
   return (
@@ -99,6 +112,11 @@ export default function Sidebar({ activeTab, onTabChange, user, userProfile, onL
               onClick={() => {
                 onTabChange(item.id);
                 setIsOpen(false);
+                
+                // Navegar para a página correspondente
+                if (item.path) {
+                  router.push(item.path);
+                }
               }}
               className={`
                 w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-all duration-200

@@ -175,46 +175,194 @@ export default function SubscriptionPage() {
 
 
 
-          {/* Cancellation Info */}
-          <Card>
-            <CardHeader>
-              <h2 className="text-xl font-semibold text-gray-900">Cancelar Assinatura</h2>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
+          {/* Upgrade CTA Section */}
+          {currentPlan !== 'professional' && (
+            <Card className="mb-6">
+              <CardHeader>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">🚀 Desbloqueie Mais Recursos</h2>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6">
+                  <div className="text-center mb-6">
+                                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                       {currentPlan === 'free' 
+                         ? 'Transforme seu negócio com o Plano Starter' 
+                         : 'Leve seu negócio ao próximo nível com o Plano Professional'
+                       }
+                     </h3>
+                     <p className="text-gray-600 dark:text-gray-400 text-lg">
+                       {currentPlan === 'free' 
+                         ? 'Aproveite recursos avançados que vão revolucionar sua experiência com feedbacks'
+                         : 'Tenha acesso ilimitado a todas as funcionalidades e suporte premium'
+                       }
+                     </p>
                   </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-yellow-800">
-                      Como cancelar sua assinatura
-                    </h3>
-                    <div className="mt-2 text-sm text-yellow-700">
-                      <p>
-                        Para cancelar sua assinatura, envie um email para{' '}
-                        <a href="mailto:suporte@pesquisou.com.br" className="font-medium underline">
-                          suporte@pesquisou.com.br
-                        </a>{' '}
-                        com o assunto &quot;Cancelamento de Assinatura&quot; e inclua:
-                      </p>
-                      <ul className="list-disc list-inside mt-2 space-y-1">
-                        <li>Seu nome completo</li>
-                        <li>Email da conta</li>
-                        <li>Motivo do cancelamento (opcional)</li>
-                        <li>Data desejada para o cancelamento</li>
-                      </ul>
-                      <p className="mt-2">
-                        <strong>Importante:</strong> O cancelamento será processado até o final do período atual de cobrança.
-                      </p>
+
+                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                     {currentPlan === 'free' ? (
+                      <>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <h4 className="font-semibold text-gray-900 dark:text-white mb-3">✅ O que você ganha:</h4>
+                          <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                            <li>• 5 áreas de opiniões (vs. 2 atuais)</li>
+                            <li>• 200 feedbacks/mês (vs. 50 atuais)</li>
+                            <li>• QR Codes personalizados</li>
+                            <li>• Agente IA básico</li>
+                            <li>• Suporte prioritário</li>
+                          </ul>
+                        </div>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <h4 className="font-semibold text-gray-900 dark:text-white mb-3">💡 Benefícios:</h4>
+                          <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                            <li>• Crescimento 3x mais rápido</li>
+                            <li>• Insights valiosos sobre clientes</li>
+                            <li>• Melhor tomada de decisão</li>
+                            <li>• ROI comprovado</li>
+                          </ul>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <h4 className="font-semibold text-gray-900 dark:text-white mb-3">✅ O que você ganha:</h4>
+                          <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                            <li>• Áreas ilimitadas</li>
+                            <li>• Feedback ilimitado</li>
+                            <li>• Agente IA completo</li>
+                            <li>• Suporte 24/7</li>
+                            <li>• Integração com APIs</li>
+                          </ul>
+                        </div>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <h4 className="font-semibold text-gray-900 dark:text-white mb-3">💡 Benefícios:</h4>
+                          <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                            <li>• Escalabilidade total</li>
+                            <li>• Automação avançada</li>
+                            <li>• Relatórios personalizados</li>
+                            <li>• Treinamento dedicado</li>
+                          </ul>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  <div className="text-center">
+                                         <button
+                       onClick={() => router.push('/planos')}
+                       className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-105"
+                     >
+                       {currentPlan === 'free' 
+                         ? 'Fazer Upgrade para Starter - R$ 29/mês' 
+                         : 'Fazer Upgrade para Professional - R$ 79/mês'
+                       }
+                     </button>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                      Teste gratuito de 30 dias • Sem compromisso • Cancele a qualquer momento
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Usage Analytics & Upgrade Motivation */}
+          {currentPlan === 'free' && (
+            <Card className="mb-6">
+              <CardHeader>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">📊 Seu Uso Atual</h2>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Áreas de opiniões</span>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div className="bg-blue-600 h-2 rounded-full" style={{ width: '40%' }}></div>
+                      </div>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">2/5</span>
                     </div>
                   </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Feedbacks este mês</span>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div className="bg-orange-500 h-2 rounded-full" style={{ width: '60%' }}></div>
+                      </div>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">30/50</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+                    <div className="flex items-center">
+                      <svg className="w-5 h-5 text-orange-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-sm text-orange-700 dark:text-orange-300">
+                        <strong>Dica:</strong> Você está usando 60% da sua cota de feedbacks. Faça upgrade para não perder insights valiosos!
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Social Proof for Upgrade */}
+          <Card className="mb-6">
+            <CardHeader>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">💬 O que nossos clientes dizem</h2>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                  <div className="flex items-center mb-3">
+                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold mr-3">
+                      M
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 dark:text-white text-sm">Maria Silva</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Restaurante Sabor & Arte</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    "O upgrade para Professional transformou nosso atendimento. Agora temos insights valiosos sobre nossos clientes."
+                  </p>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                  <div className="flex items-center mb-3">
+                    <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white text-sm font-bold mr-3">
+                      J
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 dark:text-white text-sm">João Santos</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Farmácia Popular</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    "Com o plano Starter, conseguimos expandir para 5 áreas e melhorar significativamente nosso serviço."
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
+
+          {/* Cancellation Info - Simplified */}
+          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="text-center">
+              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                Precisa cancelar sua assinatura?
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mb-3">
+                Envie um email para{' '}
+                <a href="mailto:suporte@pesquisou.com.br" className="text-blue-600 dark:text-blue-400 hover:underline">
+                  suporte@pesquisou.com.br
+                </a>{' '}
+                com o assunto &quot;Cancelamento de Assinatura&quot;
+              </p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">
+                Inclua seu nome, email da conta e data desejada para o cancelamento
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

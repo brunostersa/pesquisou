@@ -63,13 +63,25 @@ export default function FeedbacksPage() {
   };
 
   const loadAllFeedbacks = (userId: string) => {
+    // Carregar apenas os feedbacks das áreas do usuário
     const q = query(collection(db, 'feedbacks'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const feedbacksData = snapshot.docs.map(doc => ({
+      const allFeedbacks = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as Feedback[];
-      setFeedbacks(feedbacksData);
+      
+      // Filtrar apenas feedbacks das áreas do usuário
+      const userFeedbacks = allFeedbacks.filter(feedback => {
+        const area = areas.find(a => a.id === feedback.areaId);
+        return area && area.userId === userId;
+      });
+      
+      console.log('Debug - Total feedbacks no banco:', allFeedbacks.length);
+      console.log('Debug - Feedbacks do usuário:', userFeedbacks.length);
+      console.log('Debug - Áreas do usuário:', areas.length);
+      
+      setFeedbacks(userFeedbacks);
     });
 
     return unsubscribe;
@@ -85,6 +97,64 @@ export default function FeedbacksPage() {
     } catch (error) {
       console.error('Erro ao carregar perfil:', error);
     }
+  };
+
+  // Função para obter limite de feedbacks baseado no plano
+  const getFeedbackLimit = (plan: string) => {
+    switch (plan) {
+      case 'free':
+        return 50;
+      case 'starter':
+        return 200;
+      case 'professional':
+        return 9999; // Praticamente ilimitado
+      default:
+        return 50;
+    }
+  };
+
+  // Função para verificar se está próximo do limite de feedbacks
+  const getFeedbackUsage = () => {
+    if (!userProfile) return { current: 0, limit: 50, percentage: 0 };
+    
+    const currentPlan = userProfile.plan || 'free';
+    const limit = getFeedbackLimit(currentPlan);
+    
+    // Contar feedbacks do mês atual
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const monthlyFeedbacks = feedbacks.filter(feedback => {
+      const feedbackDate = new Date(feedback.createdAt);
+      return feedbackDate.getMonth() === currentMonth && feedbackDate.getFullYear() === currentYear;
+    }).length;
+    
+    console.log('Debug - getFeedbackUsage:', {
+      totalFeedbacks: feedbacks.length,
+      monthlyFeedbacks,
+      currentMonth,
+      currentYear,
+      limit
+    });
+    
+    const percentage = Math.round((monthlyFeedbacks / limit) * 100);
+    
+    return {
+      current: monthlyFeedbacks,
+      limit,
+      percentage: Math.min(percentage, 100)
+    };
+  };
+
+  // Função para verificar se está próximo do limite
+  const isNearFeedbackLimit = () => {
+    const usage = getFeedbackUsage();
+    return usage.percentage >= 80; // 80% ou mais
+  };
+
+  // Função para verificar se atingiu o limite
+  const hasReachedFeedbackLimit = () => {
+    const usage = getFeedbackUsage();
+    return usage.percentage >= 100;
   };
 
   const getFilteredFeedbacks = () => {
@@ -206,6 +276,79 @@ export default function FeedbacksPage() {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">💬 Todas as Opiniões</h1>
             <p className="text-gray-600 dark:text-gray-400">Visualize e gerencie todas as opiniões recebidas</p>
           </div>
+
+          {/* Feedback Usage Warning */}
+          {userProfile && (
+            <div className="mb-6">
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center space-x-4">
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Feedbacks este mês: {getFeedbackUsage().current}/{getFeedbackUsage().limit}
+                      </span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {getFeedbackUsage().percentage}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full transition-all ${
+                          hasReachedFeedbackLimit() 
+                            ? 'bg-red-500' 
+                            : isNearFeedbackLimit() 
+                              ? 'bg-yellow-500' 
+                              : 'bg-blue-500'
+                        }`}
+                        style={{ width: `${getFeedbackUsage().percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                {hasReachedFeedbackLimit() && (
+                  <div className="ml-4">
+                    <button
+                      onClick={() => router.push('/planos')}
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                    >
+                      Limite Atingido - Fazer Upgrade
+                    </button>
+                  </div>
+                )}
+                
+                {isNearFeedbackLimit() && !hasReachedFeedbackLimit() && (
+                  <div className="ml-4">
+                    <button
+                      onClick={() => router.push('/planos')}
+                      className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm"
+                    >
+                      Próximo do Limite - Fazer Upgrade
+                    </button>
+                  </div>
+                )}
+              </div>
+              
+              {hasReachedFeedbackLimit() && (
+                <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-sm text-red-700 dark:text-red-300">
+                      <strong>Limite atingido!</strong> Você atingiu o máximo de {getFeedbackLimit(userProfile.plan || 'free')} feedbacks/mês do seu plano gratuito. 
+                      <button 
+                        onClick={() => router.push('/planos')}
+                        className="ml-2 text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                      >
+                        Faça upgrade para receber feedbacks ilimitados!
+                      </button>
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

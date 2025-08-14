@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Função para verificar o plano do usuário
+    function getUserPlan(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data.plan;
+    }
+    
+    // Função para obter limite de áreas baseado no plano
+    function getAreaLimit(plan) {
+      return plan == 'free' ? 2 : plan == 'starter' ? 5 : 999;
+    }
+    
+    // Função para obter limite de feedbacks baseado no plano
+    function getFeedbackLimit(plan) {
+      return plan == 'free' ? 50 : plan == 'starter' ? 200 : 9999;
+    }
+    
+    // Função para contar áreas do usuário
+    function countUserAreas(userId) {
+      return getAfter(/databases/$(database)/documents/areas).where('userId', '==', userId).size();
+    }
+    
+    // Função para contar feedbacks do usuário no mês atual
+    function countUserFeedbacksThisMonth(userId) {
+      let currentMonth = request.time.month;
+      let currentYear = request.time.year;
+      return getAfter(/databases/$(database)/documents/feedbacks)
+        .where('userId', '==', userId)
+        .where('createdAt', '>=', timestamp(currentYear, currentMonth, 1))
+        .where('createdAt', '<', timestamp(currentYear, currentMonth + 1, 1))
+        .size();
+    }
+    
+    // Regras para usuários
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Regras para áreas
+    match /areas/{areaId} {
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || 
+         getUserPlan(request.auth.uid) in ['admin', 'super_admin']);
+      
+      allow create: if request.auth != null && 
+        request.auth.uid == request.data.userId &&
+        countUserAreas(request.auth.uid) < getAreaLimit(getUserPlan(request.auth.uid));
+      
+      allow update, delete: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+    }
+    
+    // Regras para feedbacks
+    match /feedbacks/{feedbackId} {
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || 
+         getUserPlan(request.auth.uid) in ['admin', 'super_admin']);
+      
+      allow create: if request.auth != null && 
+        request.auth.uid == request.data.userId &&
+        countUserFeedbacksThisMonth(request.auth.uid) < getFeedbackLimit(getUserPlan(request.auth.uid));
+      
+      allow update, delete: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+    }
+    
+    // Regras para outras coleções
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

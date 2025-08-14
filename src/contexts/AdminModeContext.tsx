@@ -55,6 +55,11 @@ export function AdminModeProvider({ children }: { children: ReactNode }) {
     }
   }, [isAdminMode, isInitialized]);
 
+  // Log para debug quando o estado muda
+  useEffect(() => {
+    console.log('AdminMode State Changed:', { isAdminMode });
+  }, [isAdminMode]);
+
   return (
     <AdminModeContext.Provider value={{ isAdminMode, toggleAdminMode, setAdminMode }}>
       {children}

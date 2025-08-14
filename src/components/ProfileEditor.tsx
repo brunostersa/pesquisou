@@ -22,6 +22,7 @@ interface ProfileEditorProps {
 export default function ProfileEditor({ userProfile, onClose, onUpdate }: ProfileEditorProps) {
   const [formData, setFormData] = useState({
     name: '',
+    email: '',
     company: '',
     segment: '',
     phone: '',
@@ -37,6 +38,7 @@ export default function ProfileEditor({ userProfile, onClose, onUpdate }: Profil
     if (userProfile) {
       setFormData({
         name: userProfile.name || '',
+        email: userProfile.email || '',
         company: userProfile.company || '',
         segment: userProfile.segment || '',
         phone: userProfile.phone || '',
@@ -214,6 +216,24 @@ export default function ProfileEditor({ userProfile, onClose, onUpdate }: Profil
                 className="w-full px-3 py-2 border border-custom rounded-md focus:outline-none focus:ring-2 focus:ring-secondary-color focus:border-transparent bg-card text-primary"
                 placeholder="Seu nome completo"
               />
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-primary mb-1">
+                E-mail
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                disabled
+                className="w-full px-3 py-2 border border-custom rounded-md bg-tertiary text-secondary cursor-not-allowed"
+                placeholder="Seu e-mail"
+              />
+              <p className="text-xs text-secondary mt-1">
+                O e-mail não pode ser alterado por questões de segurança
+              </p>
             </div>
 
             <div>

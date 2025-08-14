@@ -36,6 +36,7 @@ export default function ProfilePage() {
   
   const [formData, setFormData] = useState({
     name: '',
+    email: '',
     company: '',
     segment: '',
     phone: '',
@@ -67,6 +68,7 @@ export default function ProfilePage() {
         setUserProfile(data);
         setFormData({
           name: data.name || '',
+          email: data.email || user?.email || '',
           company: data.company || '',
           segment: data.segment || '',
           phone: data.phone ? applyPhoneMask(data.phone) : '',
@@ -84,6 +86,7 @@ export default function ProfilePage() {
         setUserProfile({ uid: userId, email: user?.email || '', createdAt: new Date(), updatedAt: new Date() });
         setFormData({
           name: '',
+          email: user?.email || '',
           company: '',
           segment: '',
           phone: '',
@@ -105,8 +108,11 @@ export default function ProfilePage() {
       if (!user) return;
 
       const updateData = {
-        ...formData,
+        name: formData.name,
+        company: formData.company,
+        segment: formData.segment,
         phone: removePhoneMask(formData.phone),
+        logoUrl: formData.logoUrl,
         updatedAt: new Date()
       };
 
@@ -192,16 +198,20 @@ export default function ProfilePage() {
   };
 
   const handleToggleAdminMode = () => {
+    console.log('Profile Debug - Antes do toggle:', { isAdminMode });
+    
     toggleAdminMode();
     
     // Feedback visual
     const newMode = !isAdminMode;
     showNotification(
       newMode 
-        ? 'Modo Admin ativado - Menus completos com funcionalidades administrativas' 
-        : 'Modo usuário ativado - Menus simplificados para usuários comuns', 
+        ? 'Modo Admin ativado - Apenas menus administrativos' 
+        : 'Modo usuário ativado - Menus básicos', 
       'success'
     );
+    
+    console.log('Profile Debug - Após toggle:', { newMode });
     
     // Forçar re-render do Sidebar
     setTimeout(() => {
@@ -303,6 +313,24 @@ export default function ProfilePage() {
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="Seu nome completo"
                       />
+                    </div>
+
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        E-mail
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        disabled
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                        placeholder="Seu e-mail"
+                      />
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        O e-mail não pode ser alterado por questões de segurança
+                      </p>
                     </div>
 
                     <div>
