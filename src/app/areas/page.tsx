@@ -357,7 +357,7 @@ export default function AreasPage() {
                   <CardContent className="h-full flex flex-col">
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-4">
-                        <div>
+                        <div className="flex-1">
                           <h3 className="text-lg font-semibold text-primary mb-1">
                             {area.name}
                           </h3>
@@ -378,7 +378,8 @@ export default function AreasPage() {
                         </button>
                       </div>
 
-                      <div className="mb-4">
+                      {/* QR Code em linha separada - Plano B */}
+                      <div className="mt-4 flex justify-center">
                         <QRCodeGenerator
                           areaId={area.id}
                           areaName={area.name}

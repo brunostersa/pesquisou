@@ -17,7 +17,7 @@ interface QRCodeGeneratorProps {
   } | null;
 }
 
-export default function QRCodeGenerator({ areaId, areaName, size = 120, userProfile }: QRCodeGeneratorProps) {
+export default function QRCodeGenerator({ areaId, areaName, size = 80, userProfile }: QRCodeGeneratorProps) {
   const [feedbackUrl, setFeedbackUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
@@ -235,127 +235,97 @@ export default function QRCodeGenerator({ areaId, areaName, size = 120, userProf
 
 
   return (
-    <Card variant="elevated" className="w-full">
-      <CardContent>
-        {/* Título clicável */}
-        <div className="mb-4">
-          <h3 
-            className="text-lg font-semibold text-primary cursor-pointer hover:text-primary-color transition-colors inline-flex items-center"
-            onClick={() => window.open(feedbackUrl, '_blank')}
-            title="Clique para abrir o link em nova aba"
-          >
-            {areaName}
-            <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
-          </h3>
+    <div className="text-center">
+      {/* Error Message */}
+      {error && (
+        <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded text-xs">
+          <p className="text-red-600 text-xs">{error}</p>
         </div>
+      )}
 
-        {/* Error Message */}
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600 text-sm">{error}</p>
+      {/* QR Code centralizado */}
+      <div ref={qrRef} className="inline-block p-3 bg-white border border-custom rounded-lg shadow-sm mb-3">
+        {feedbackUrl ? (
+          <QRCodeSVG
+            value={feedbackUrl}
+            size={size}
+            level="M"
+            includeMargin={true}
+          />
+        ) : (
+          <div className="flex items-center justify-center" style={{ width: size, height: size }}>
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-secondary-color"></div>
           </div>
         )}
+      </div>
 
-        {/* QR Code */}
-        <div className="flex justify-center mb-6">
-          <div ref={qrRef} className="p-4 bg-white border border-custom rounded-xl shadow-sm">
-            {feedbackUrl ? (
-              <QRCodeSVG
-                value={feedbackUrl}
-                size={size}
-                level="M"
-                includeMargin={true}
-              />
-            ) : (
-              <div className="flex items-center justify-center" style={{ width: size, height: size }}>
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-secondary-color"></div>
-              </div>
-            )}
-          </div>
-        </div>
+      {/* Botões em linha horizontal */}
+      <div className="flex flex-wrap justify-center gap-2 mb-3">
+        <CardAction
+          onClick={downloadQRCode}
+          disabled={isLoading}
+          variant="secondary"
+          size="sm"
+          className="text-xs px-3 py-1"
+        >
+          <svg className="w-3 h-3 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          PNG
+        </CardAction>
 
-        {/* Instrução */}
-        <div className="text-center mb-6">
-          <p className="text-secondary text-sm">
-            Escaneie para deixar um feedback
-          </p>
-        </div>
+        <CardAction
+          onClick={downloadPersonalizedPDF}
+          disabled={isLoading}
+          variant="primary"
+          size="sm"
+          className="text-xs px-3 py-1"
+        >
+          <svg className="w-3 h-3 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          PDF
+        </CardAction>
 
-        {/* Opções */}
-        <div className="space-y-3">
-          <CardAction
-            onClick={downloadQRCode}
-            disabled={isLoading}
-            variant="secondary"
-            size="md"
-            className="w-full"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        <CardAction
+          onClick={copyLink}
+          disabled={isCopied}
+          variant="ghost"
+          size="sm"
+          className="text-xs px-3 py-1"
+        >
+          {isCopied ? (
+            <svg className="w-3 h-3 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
             </svg>
-            {isLoading ? 'Baixando...' : 'Baixar QR Code (PNG)'}
-          </CardAction>
-
-          <CardAction
-            onClick={downloadPersonalizedPDF}
-            disabled={isLoading}
-            variant="primary"
-            size="md"
-            className="w-full"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          ) : (
+            <svg className="w-3 h-3 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
-            {isLoading ? 'Gerando...' : '📄 PDF Profissional'}
-          </CardAction>
+          )}
+          {isCopied ? 'Copiado!' : 'Link'}
+        </CardAction>
 
+        <CardAction
+          onClick={() => window.open(feedbackUrl, '_blank')}
+          disabled={!feedbackUrl}
+          variant="ghost"
+          size="sm"
+          className="text-xs px-3 py-1"
+        >
+          <svg className="w-3 h-3 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+          Abrir
+        </CardAction>
+      </div>
 
-
-          {/* Ações de Link */}
-          <div className="grid grid-cols-2 gap-3">
-            <CardAction
-              onClick={copyLink}
-              disabled={isCopied}
-              variant="ghost"
-              size="md"
-              className="w-full"
-            >
-              {isCopied ? (
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                </svg>
-              ) : (
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              )}
-              {isCopied ? 'Link Copiado!' : 'Copiar Link'}
-            </CardAction>
-
-            <CardAction
-              onClick={() => window.open(feedbackUrl, '_blank')}
-              disabled={!feedbackUrl}
-              variant="ghost"
-              size="md"
-              className="w-full"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-              Abrir Link
-            </CardAction>
-          </div>
-        </div>
-
-        {/* URL */}
-        <div className="mt-4 p-3 bg-tertiary rounded-lg border border-custom">
-          <p className="text-xs text-secondary text-center break-all">
-            {feedbackUrl || 'Carregando...'}
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+      {/* URL compacta */}
+      <div className="p-2 bg-tertiary rounded border border-custom">
+        <p className="text-xs text-secondary text-center break-all">
+          {feedbackUrl || 'Carregando...'}
+        </p>
+      </div>
+    </div>
   );
 }
