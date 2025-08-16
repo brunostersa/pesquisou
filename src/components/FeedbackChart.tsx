@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+// Temporariamente comentado para resolver erro do d3-path
+// import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface FeedbackChartProps {
   feedbacks: any[];
@@ -91,52 +92,24 @@ export default function FeedbackChart({ feedbacks }: FeedbackChartProps) {
         </div>
       </div>
 
-      {/* Gráfico */}
-      <div className="h-48">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis 
-              dataKey="date" 
-              stroke="#6b7280"
-              fontSize={12}
-            />
-            <YAxis 
-              stroke="#6b7280"
-              fontSize={12}
-              tickFormatter={(value) => value.toString()}
-            />
-            <Tooltip 
-              contentStyle={{
-                backgroundColor: 'white',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-              }}
-              labelStyle={{ color: '#374151', fontWeight: '600' }}
-              formatter={(value: any, name: string) => [
-                value, 
-                name === 'feedbacks' ? 'Opiniões' : 'Avaliação'
-              ]}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="feedbacks" 
-              stroke="#8b5cf6" 
-              strokeWidth={3}
-              dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, stroke: '#8b5cf6', strokeWidth: 2 }}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="rating" 
-              stroke="#10b981" 
-              strokeWidth={3}
-              dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, stroke: '#10b981', strokeWidth: 2 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+      {/* Gráfico temporariamente substituído por tabela */}
+      <div className="bg-tertiary rounded-lg p-4">
+        <h4 className="text-sm font-medium text-primary mb-3">Dados dos últimos {selectedDays} dias:</h4>
+        <div className="space-y-2">
+          {chartData.map((day, index) => (
+            <div key={index} className="flex justify-between items-center text-sm">
+              <span className="text-secondary">{day.date}</span>
+              <div className="flex space-x-4">
+                <span className="text-primary">
+                  <span className="font-medium">{day.feedbacks}</span> opiniões
+                </span>
+                <span className="text-primary">
+                  <span className="font-medium">{day.rating}</span> avaliação
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Legenda */}
